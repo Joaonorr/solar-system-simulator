@@ -35,7 +35,7 @@ void GUI::GLUTInit()
 
 void GUI::GLInit()
 {
-    glClearColor(0.0,0.0,0.0,1.0); //define a cor para limpar a imagem (cor de fundo)
+    glClearColor(1.0,1.0,1.0,1.0); //define a cor para limpar a imagem (cor de fundo)
     //glClearColor(1.0,1.0,1.0,1.0); //define a cor para limpar a imagem (cor de fundo)
 
     glEnable(GL_LIGHTING); //habilita iluminacao (chamada no setLight)
@@ -619,7 +619,7 @@ void GUI::drawQuad(float width, float height, float discrWidth, float discrHeigh
             glPushMatrix();
                 if (inverted) glRotatef(180,1,0,0);
                 glTranslatef(i*discrWidth,0.0,j*discrHeight);
-                glBegin( GL_QUADS );
+                glBegin( GL_LINE_LOOP );
                     glNormal3f(0.,1.,0.);
                         glTexCoord2f(     i*discrTexWidth, (j+1)*discrTexHeight); glVertex3f(        0.0,0.0,+discrHeight);
                         glTexCoord2f( (i+1)*discrTexWidth, (j+1)*discrTexHeight); glVertex3f(+discrWidth,0.0,+discrHeight);

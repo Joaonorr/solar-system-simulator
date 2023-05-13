@@ -5,126 +5,66 @@ using namespace std;
 #include <gui.h>
 #include "obj/Planet.h"
 #include <vector>
+#include "model3ds.h"
 
 float px = 0.0;
 float py = 0.0;
 float raio = 0.5;
 float theta = 0.0;
 
-/**float gauss(Planet planet) {
-    float numerador = pow((x - px), 2);
-    float denominador = 2*pow(2, 2);
+Model3DS* modelo = new Model3DS("../3ds/skeleton.3ds");
 
-    float numerador2 = pow((z - pz), 2);
-    float denominador2 = 2*pow(2, 2);
+void light() {
+    //definindo uma luz
+    glEnable(GL_LIGHT0);
 
-    float numerador3 = pow((x - px2), 2);
-    float denominador3 = 2*pow(2, 2);
+    const GLfloat light_ambient[]  = { 0.0f, 0.0f, 0.0f, 1.0f };
+    const GLfloat light_diffuse[]  = { 1.0f, 1.0f, 1.0f, 1.0f };
+    const GLfloat light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    const GLfloat light_position[] = { 2.0f, 5.0f, 5.0f, 0.0f };
 
-    float numerador4 = pow((z - pz2), 2);
-    float denominador4 = 2*pow(2, 2);
+    const GLfloat mat_ambient[]    = { 0.7f, 0.7f, 0.7f, 1.0f };
+    const GLfloat mat_diffuse[]    = { 0.8f, 0.8f, 0.8f, 1.0f };
+    const GLfloat mat_specular[]   = { 1.0f, 1.0f, 1.0f, 1.0f };
+    const GLfloat high_shininess[] = { 100.0f };
 
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
 
-    return constante * pow(M_E, -((numerador/denominador) + (numerador2/denominador2)) * ((numerador3/denominador3) + (numerador4/denominador4)));
-}*/
+    glMaterialfv(GL_FRONT, GL_AMBIENT,   mat_ambient);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,   mat_diffuse);
+    glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, high_shininess);
+}
 
-/*void drawMalha(std::vector<Planet> planets, float width, float height, float discrWidth, float discrHeight, float texWidth, float texHeight, bool inverted)
-{
-    int nWidth = width/discrWidth;
-    int nHeight = height/discrHeight;
-    discrWidth = width/nWidth; //correcao necessaria, pois, caso width/discrWidth nao seja inteiro, nWidth*discrWidth (feito pelo for) nao completara exatamente a width
-    discrHeight = height/nHeight; //correcao necessaria, pois, caso height/discrHeight nao seja inteiro, nHeight*discrHeight (feito pelo for) nao completara exatamente a height
-    float discrTexWidth = texWidth*(discrWidth/width);
-    float discrTexHeight = texHeight*(discrHeight/height);
-    for(float i=-0.5*(width/discrWidth);i<0.5*(width/discrWidth);i++) {
-        for(float j=-0.5*(height/discrHeight);j<0.5*(height/discrHeight);j++) {
-            glPushMatrix();
-                if (inverted) glRotatef(180,1,0,0);
-                glTranslatef(i*discrWidth,0.0,j*discrHeight);
-                glBegin( GL_LINE_LOOP );
-                    glNormal3f(0.,1.,0.);
-                        glTexCoord2f(     i*discrTexWidth, (j+1)*discrTexHeight); glVertex3f(        0.0, gauss(-3, i*discrWidth, j*discrHeight+discrHeight),+discrHeight);
-                        glTexCoord2f( (i+1)*discrTexWidth, (j+1)*discrTexHeight); glVertex3f(+discrWidth, gauss(-3, i*discrWidth+discrWidth , j*discrHeight+discrHeight ),+discrHeight);
-                        glTexCoord2f( (i+1)*discrTexWidth,     j*discrTexHeight); glVertex3f(+discrWidth, gauss(-3, i*discrWidth+discrWidth , j*discrHeight), 0.0);
-                        glTexCoord2f(     i*discrTexWidth,     j*discrTexHeight); glVertex3f(        0.0, gauss(-3, i*discrWidth, j*discrHeight),         0.0);
-                glEnd();
-            glPopMatrix();
-        }
-    }
-}*/
+void skeleton() {
+    //desenhando esqueleto em pe sobre o chao e com um tamanho adequado
+    glPushMatrix();
+        float s = 0.834;
+        glScaled(s,s,s);
+        glTranslated(0.0,0.768,0.0);
+        s = 0.018;
+        glScaled(s,s,s);
+        modelo->draw();
+    glPopMatrix();
+
+}
 
 void desenha() {
-
-    Planet earth(70, 0, 70, 1, 1);
-
-    Planet jupty(180, 0, 180, 20, 1);
-
-    Planet moon(earth.initx - 1, earth.inity, earth.initz, 1);
-
     GUI::displayInit();
 
-        // sol -> modificação no método setLight para definir o tamanho da iluminação
-        GUI::setLight(1, 0, 0, 0, true, false, 40.0);
+        GUI::drawOrigin(0.4); // desenha a origem na referẽncia global
+        GUI::drawFloor(); // desenha a malha de referência global
 
-        // terra
-        glPushMatrix();
-            glRotated(px,0,1, 0);
-            earth.draw();
+        light(); // define a iluminação do nosso sistema
 
-            // lua
-            glPushMatrix();
-                glRotatef(px, 0, 1, 0); // rotação em torno do eixo y (eixo vertical)
-                glTranslatef(3.0f, 0.0f, 0.0f); // translação para a posição da lua em relação à Terra
-                moon.draw();
-            glPopMatrix(); // fim lua
+        GUI::drawSphere(1.0, 0.0, 0.0, 0.1);
 
-            glPopMatrix(); // fim terra
+        /** Adicione aqui as transformações **/
 
-
-        // lua
-        glPushMatrix();
-
-        glPopMatrix();
-
-        px += 1;
-
-        // outro qualquer
-        glPushMatrix();
-            glRotated(py,0,1, 0);
-            jupty.draw();
-        glPopMatrix();
-        py -= 0.7;
-
-
-        glPushMatrix();
-            glTranslatef(0, -20, 0);
-            //GUI::drawFloor(100, 100, 1, 1);
-        glPopMatrix();
-
-    // posição inicial do sol
-
-
-
-
-
-
-//    // desenhando a terra
-//    Planet earth(2, 2, 0, 1, 1);
-//    earth.draw();
-
-//    std::vector<Planet> planets;
-
-//    planets.push_back(sun);
-//    planets.push_back(earth);
-
-//    for (Planet planet : planets) {
-//        planet.draw();
-//    }
-
-    //glTranslated(1, 1, 1); // translada o objeto atráves de um vetor
-
-    // desenhando malha distorcida
-    //drawMalha(5, 5, 0.2, 0.2, 1, 1, false);
+        skeleton(); // desenha o modelo
 
     GUI::displayEnd();
 }
